@@ -22,3 +22,8 @@ Road Map
 -Extended audio format support
 -Open source compatibility
 -Desktop compatibility
+
+Update:
+-Basic Miniplayer UI set up
+-Play/pause button features added
+-Background playback and android media session API integrated
