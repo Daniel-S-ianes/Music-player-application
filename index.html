@@ -2,18 +2,78 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name=""viewport" content=""width= device-width, initial-scale="1.0">
+        <meta name=""viewport" content=""width=device-width, initial-scale="1.0">
         <title>Music Player</title>
+        <style>
+            body {
+                background-color: #121212;
+                color: #ffffff;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                padding-bottom: 90px;
+            }
+
+            /*sticky player bar*/
+            .mini-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background-color: #1e1e1e;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-top: 2px solid #bb86fc;
+            }
+
+            .track-info {
+             display: flex;
+            flex-direction: column;
+            }
+
+            .track-title {
+                font-weight: bold;
+                font-size: 14px;
+            }
+
+            .track-status {
+                font-size: 12px;
+                color: #aaa;
+            }
+
+            .play-bin {
+                background-color: #bb86fc;
+                border: none;
+                color: #000;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+        </style>
     </head>
     <body>
-        <h1>Music Player</h1>
+        <h1>My Music Player</h1>
 
-        <!--file selector placeholder-->
+        <!--file selector-->
+        <label for=""audioInput">Select local Track:</label><br><br>
         <input type="file" id="audioInput" accept="audio/*">
 
-        <!--HTML5 audio element placeholder-->
-        <audio id="audioElement" controls></audio>
+        <!--Miniplayer bar bottom-->
+        <div clean="mini-player">
+            <div class="track-info">
+                <span class="track-title" id="trackTitle">No track loaded</span>
+                <span class="track-status" id="trackStatus">Stopped</span>
+            </div>
+            <button class="play-bin" id="playBtn">Play</button>
+        </div>
+
+        <!--hidden audio elements-->
+        <audio id="audioElement"></audio>
 
         <script src="main.js"></script>
     </body>
-</html>
+    </html>
