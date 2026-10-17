@@ -1,4 +1,4 @@
-//UI elements
+// 1. Reference UI elements
 const audio = document.getElementById('audioElement');
 const audioInput = document.getElementById('audioInput');
 const playBtn = document.getElementById('playBtn');
@@ -12,13 +12,38 @@ const durationTimeDisplay = document.getElementById('durationTime');
 const volumeSlider = document.getElementById('volumeSlider');
 const muteBtn = document.getElementById('muteBtn');
 const playlistUI = document.getElementById('playlist');
+const themeSelect = document.getElementById('themeSelect');
 
-//Playlist State
-let playlist = []; // Array storing track objects: { file, title, url }
+// State Variables
+let playlist = [];
 let currentTrackIndex = -1;
 let lastVolume = 1;
 
-//Helper: Format seconds to MM:SS
+// 2. Load Persisted LocalStorage Settings (Theme & Volume)
+function loadSavedSettings() {
+    // Restore Saved Theme
+    const savedTheme = localStorage.getItem('playerTheme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeSelect.value = savedTheme;
+
+    // Restore Saved Volume
+    const savedVolume = localStorage.getItem('playerVolume');
+    if (savedVolume !== null) {
+        audio.volume = parseFloat(savedVolume);
+        volumeSlider.value = savedVolume;
+        lastVolume = parseFloat(savedVolume);
+        updateMuteIcon();
+    }
+}
+
+// 3. Theme Switcher Handler
+themeSelect.addEventListener('change', (e) => {
+    const selectedTheme = e.target.value;
+    document.documentElement.setAttribute('data-theme', selectedTheme);
+    localStorage.setItem('playerTheme', selectedTheme);
+});
+
+// Helper: Format seconds to MM:SS
 function formatTime(seconds) {
     if (isNaN(seconds)) return "00:00";
     const mins = Math.floor(seconds / 60);
@@ -26,7 +51,7 @@ function formatTime(seconds) {
     return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-//Load Multiple Local Files
+// 4. File Selector Handler
 audioInput.addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -40,13 +65,11 @@ audioInput.addEventListener('change', function(e) {
     }));
 
     renderPlaylist();
-    loadTrack(0); // Load and play first track automatically
+    loadTrack(0);
 });
 
-// Render Queue UI
 function renderPlaylist() {
     playlistUI.innerHTML = "";
-    
     playlist.forEach((item, index) => {
         const li = document.createElement('li');
         li.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
@@ -56,7 +79,6 @@ function renderPlaylist() {
     });
 }
 
-//Load track by index
 function loadTrack(index) {
     if (index < 0 || index >= playlist.length) return;
 
@@ -74,7 +96,6 @@ function loadTrack(index) {
     setupMediaSession(track.title);
 }
 
-//Play/Pause toggle
 function togglePlay() {
     if (!audio.src) return;
 
@@ -89,7 +110,6 @@ function togglePlay() {
     }
 }
 
-//Next / Previous Handlers
 function nextTrack() {
     if (playlist.length === 0) return;
     let nextIndex = currentTrackIndex + 1;
@@ -104,7 +124,7 @@ function prevTrack() {
     loadTrack(prevIndex);
 }
 
-//Audio Event Listeners
+// 5. Audio Events
 audio.addEventListener('loadedmetadata', () => {
     seekBar.max = Math.floor(audio.duration);
     durationTimeDisplay.textContent = formatTime(audio.duration);
@@ -119,7 +139,6 @@ seekBar.addEventListener('input', () => {
     audio.currentTime = seekBar.value;
 });
 
-//Auto-advance queue on track completion
 audio.addEventListener('ended', () => {
     if (currentTrackIndex < playlist.length - 1) {
         nextTrack();
@@ -131,10 +150,11 @@ audio.addEventListener('ended', () => {
     }
 });
 
-//Volume Adjustment & Mute
+// 6. Volume Control & Local Storage Persistence
 volumeSlider.addEventListener('input', (e) => {
     audio.volume = e.target.value;
     audio.muted = false;
+    localStorage.setItem('playerVolume', e.target.value);
     updateMuteIcon();
 });
 
@@ -161,7 +181,7 @@ function updateMuteIcon() {
     }
 }
 
-//Android MediaSession Integration
+// 7. Android MediaSession Integration
 function setupMediaSession(songTitle) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -177,8 +197,10 @@ function setupMediaSession(songTitle) {
     }
 }
 
-//Attach UI listeners
+// Attach UI listeners & Initialize Settings
 playBtn.addEventListener('click', togglePlay);
 prevBtn.addEventListener('click', prevTrack);
 nextBtn.addEventListener('click', nextTrack);
 muteBtn.addEventListener('click', toggleMute);
+
+loadSavedSettings();

@@ -1,26 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Music Player</title>
-        <style>
-            body {
-                background-color: #121212;
-                color: #ffffff;
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 20px;
-                padding-bottom: 160px;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <style>
+        /* CSS Variables for Dynamic Themes */
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --subtext-color: #aaa;
+            --accent-color: #bb86fc;
+            --hover-bg: #2a2a2a;
+            --active-bg: #2d2438;
+            --border-color: #333;
+        }
 
+        /* Light Theme Tokens */
+        [data-theme="light"] {
+            --bg-color: #f4f4f9;
+            --panel-bg: #ffffff;
+            --text-color: #121212;
+            --subtext-color: #555555;
+            --accent-color: #6200ee;
+            --hover-bg: #e0e0e0;
+            --active-bg: #e8def8;
+            --border-color: #cccccc;
+        }
+
+        /* Cyberpunk / Neon Theme Tokens */
+        [data-theme="neon"] {
+            --bg-color: #0d0221;
+            --panel-bg: #0f0826;
+            --text-color: #00f5d4;
+            --subtext-color: #7b2cbf;
+            --accent-color: #f72585;
+            --hover-bg: #240046;
+            --active-bg: #3c096c;
+            --border-color: #f72585;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            padding-bottom: 160px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .theme-select {
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Playlist Section */
         .playlist-container {
             margin-top: 20px;
-            background-color: #1e1e1e;
+            background-color: var(--panel-bg);
             border-radius: 8px;
             padding: 15px;
             max-height: 250px;
             overflow-y: auto;
+            border: 1px solid var(--border-color);
         }
 
         .playlist {
@@ -31,7 +86,7 @@
 
         .playlist-item {
             padding: 10px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -39,144 +94,153 @@
         }
 
         .playlist-item:hover {
-            background-color: #2a2a2a;
+            background-color: var(--hover-bg);
         }
 
         .playlist-item.active {
-            color: #bb86fc;
+            color: var(--accent-color);
             font-weight: bold;
-            background-color: #2d2438;
+            background-color: var(--active-bg);
         }
-            /*sticky player bar*/
-            .mini-player {
+
+        /* Sticky Mini-Player Bar */
+        .mini-player {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 70px;
-            background-color: #1e1e1e;
+            background-color: var(--panel-bg);
             display: flex;
             flex-direction: column;
+            padding: 10px 20px 15px 20px;
+            border-top: 2px solid var(--accent-color);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+            transition: background-color 0.3s;
+        }
+
+        .player-controls {
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 20px 15px 20px;
-            border-top: 2px solid #bb86fc;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
-            }
+            margin-top: 10px;
+            gap: 10px;
+        }
 
-            .player-controls {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-top: 8px;
-                gap: 10px;
-            }
-
-            .track-info {
-             display: flex;
+        .track-info {
+            display: flex;
             flex-direction: column;
             flex-grow: 1;
-            }
+            overflow: hidden;
+        }
 
-            .track-title {
-                font-weight: bold;
-                font-size: 14px;
-            }
+        .track-title {
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-            .track-status {
-                font-size: 12px;
-                color: #aaa;
-            }
+        .track-status {
+            font-size: 12px;
+            color: var(--subtext-color);
+        }
 
-            .progress-container {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                width: 100%;
-            }
+        /* Seek Bar & Time Container */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
 
-            .seek-bar {
-                flex-grow: 1;
-                accent-color: #bb86fc;
-                cursor: pointer;
-            }
+        .seek-bar {
+            flex-grow: 1;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
 
-            .time-display {
-                font-size: 12px;
-                color: #ccc;
-                font-family: monospace;
-            }
+        .time-display {
+            font-size: 12px;
+            color: var(--subtext-color);
+            font-family: monospace;
+        }
 
-            .controls-center {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
+        .controls-center, .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-            .controls-right {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-            .volume-container {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
+        .volume-slider {
+            width: 70px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
 
-            .volume-slider {
-                width: 70px;
-                accent-color: #bb86fc;
-                cursor: pointer;
-            }
+        .btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
 
-            .play-btn {
-                background-color: #bb86fc;
-                border: none;
-                color: #000;
-                padding: 6px 14px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 13px;
-            }
-            
-            .mute-btn {
-                background-color: #333;
-                color: #fff;
-                border: 1px solid #bb86fc;
-                padding: 6px 10px;
-            }
-        </style>
-    </head>
-    <body>
+        .btn-secondary {
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 6px 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
         <h1>My Music Player</h1>
-
-        <!--file selector-->
-        <label for="audioInput">Select local Track:</label><br><br>
-        <input type="file" id="audioInput" accept="audio/*">
-
-        <div class="playlist-container">
-             <h3>Current Queue</h3>
-             <ul id="playlist" class="playlist">
-                 <li style="color: #aaa; font-style: italic; padding: 10px;">No tracks loaded yet. Choose files above!</li>
-             </ul>
+        <div>
+            <label for="themeSelect">Theme: </label>
+            <select id="themeSelect" class="theme-select">
+                <option value="dark">Dark Mode</option>
+                <option value="light">Light Mode</option>
+                <option value="neon">Neon / Cyberpunk</option>
+            </select>
         </div>
-        <!--Miniplayer bar bottom-->
-        <div class="mini-player">
-            <div class="progress-container">
-                <span class="time-display" id="currentTime">00:00</span>
-                <input type="range" id="seekbar" class="seekbar" value="0" min="0" steps="1">
-                <span class="time-display" id="durationTime">00:00</span>
-            </div>
+    </div>
 
-            <div class="player-controls">
-                <div class="track-info">
-                    <span class="track-title" id="trackTitle">No track loaded</span>
-                    <span class="track-status" id="trackStatus">Stopped</span>
-                </div>
-                <button class="play-btn" id="playBtn">Play</button>
+    <!-- File Selector -->
+    <label for="audioInput">Select Local Audio Files:</label><br><br>
+    <input type="file" id="audioInput" accept="audio/*" multiple>
+
+    <!-- Playlist Queue View -->
+    <div class="playlist-container">
+        <h3>Current Queue</h3>
+        <ul id="playlist" class="playlist">
+            <li style="color: var(--subtext-color); font-style: italic; padding: 10px;">No tracks loaded yet. Choose files above!</li>
+        </ul>
+    </div>
+
+    <!-- Sticky Mini-Player Bar -->
+    <div class="mini-player">
+        <div class="progress-container">
+            <span class="time-display" id="currentTime">00:00</span>
+            <input type="range" id="seekBar" class="seek-bar" value="0" min="0" step="1">
+            <span class="time-display" id="durationTime">00:00</span>
+        </div>
+
+        <div class="player-controls">
+            <div class="track-info">
+                <span class="track-title" id="trackTitle">No track loaded</span>
+                <span class="track-status" id="trackStatus">Stopped</span>
             </div>
 
             <div class="controls-center">
@@ -187,20 +251,15 @@
 
             <div class="controls-right">
                 <div class="volume-container">
-                    <button class="btn mute-btn" id="muteBtn">🔊</button>
+                    <button class="btn btn-secondary" id="muteBtn">🔊</button>
                     <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
                 </div>
-
-                <!-- Main Action Button -->
-                <button class="btn" id="playBtn">Play</button>
             </div>
         </div>
     </div>
-</div>
-        <!--hidden audio elements-->
-        <audio id="audioElement"></audio>
 
-        <script src="main.js"></script>
-        
-    </body>
-    </html>
+    <audio id="audioElement"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
