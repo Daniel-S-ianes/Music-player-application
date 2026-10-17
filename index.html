@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name=""viewport" content=""width=device-width, initial-scale="1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Music Player</title>
         <style>
             body {
@@ -11,9 +11,42 @@
                 font-family: Arial, sans-serif;
                 margin: 0;
                 padding: 20px;
-                padding-bottom: 90px;
+                padding-bottom: 160px;
             }
 
+        .playlist-container {
+            margin-top: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .playlist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .playlist-item {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .playlist-item:hover {
+            background-color: #2a2a2a;
+        }
+
+        .playlist-item.active {
+            color: #bb86fc;
+            font-weight: bold;
+            background-color: #2d2438;
+        }
             /*sticky player bar*/
             .mini-player {
             position: fixed;
@@ -23,15 +56,26 @@
             height: 70px;
             background-color: #1e1e1e;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 10px 20px 15px 20px;
             border-top: 2px solid #bb86fc;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+            }
+
+            .player-controls {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 8px;
+                gap: 10px;
             }
 
             .track-info {
              display: flex;
             flex-direction: column;
+            flex-grow: 1;
             }
 
             .track-title {
@@ -44,14 +88,65 @@
                 color: #aaa;
             }
 
-            .play-bin {
+            .progress-container {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .seek-bar {
+                flex-grow: 1;
+                accent-color: #bb86fc;
+                cursor: pointer;
+            }
+
+            .time-display {
+                font-size: 12px;
+                color: #ccc;
+                font-family: monospace;
+            }
+
+            .controls-center {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .controls-right {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .volume-container {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .volume-slider {
+                width: 70px;
+                accent-color: #bb86fc;
+                cursor: pointer;
+            }
+
+            .play-btn {
                 background-color: #bb86fc;
                 border: none;
                 color: #000;
-                padding: 10px 20px;
+                padding: 6px 14px;
                 border-radius: 20px;
                 cursor: pointer;
                 font-weight: bold;
+                font-size: 13px;
+            }
+            
+            .mute-btn {
+                background-color: #333;
+                color: #fff;
+                border: 1px solid #bb86fc;
+                padding: 6px 10px;
             }
         </style>
     </head>
@@ -59,18 +154,49 @@
         <h1>My Music Player</h1>
 
         <!--file selector-->
-        <label for=""audioInput">Select local Track:</label><br><br>
+        <label for="audioInput">Select local Track:</label><br><br>
         <input type="file" id="audioInput" accept="audio/*">
 
-        <!--Miniplayer bar bottom-->
-        <div clean="mini-player">
-            <div class="track-info">
-                <span class="track-title" id="trackTitle">No track loaded</span>
-                <span class="track-status" id="trackStatus">Stopped</span>
-            </div>
-            <button class="play-bin" id="playBtn">Play</button>
+        <div class="playlist-container">
+             <h3>Current Queue</h3>
+             <ul id="playlist" class="playlist">
+                 <li style="color: #aaa; font-style: italic; padding: 10px;">No tracks loaded yet. Choose files above!</li>
+             </ul>
         </div>
+        <!--Miniplayer bar bottom-->
+        <div class="mini-player">
+            <div class="progress-container">
+                <span class="time-display" id="currentTime">00:00</span>
+                <input type="range" id="seekbar" class="seekbar" value="0" min="0" steps="1">
+                <span class="time-display" id="durationTime">00:00</span>
+            </div>
 
+            <div class="player-controls">
+                <div class="track-info">
+                    <span class="track-title" id="trackTitle">No track loaded</span>
+                    <span class="track-status" id="trackStatus">Stopped</span>
+                </div>
+                <button class="play-btn" id="playBtn">Play</button>
+            </div>
+
+            <div class="controls-center">
+                <button class="btn btn-secondary" id="prevBtn">⏮</button>
+                <button class="btn" id="playBtn">Play</button>
+                <button class="btn btn-secondary" id="nextBtn">⏭</button>
+            </div>
+
+            <div class="controls-right">
+                <div class="volume-container">
+                    <button class="btn mute-btn" id="muteBtn">🔊</button>
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
+                </div>
+
+                <!-- Main Action Button -->
+                <button class="btn" id="playBtn">Play</button>
+            </div>
+        </div>
+    </div>
+</div>
         <!--hidden audio elements-->
         <audio id="audioElement"></audio>
 
